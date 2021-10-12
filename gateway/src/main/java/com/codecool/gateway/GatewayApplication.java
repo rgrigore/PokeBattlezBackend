@@ -7,6 +7,7 @@ import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 
+//@EnableWebSecurity
 @EnableEurekaClient
 @SpringBootApplication
 public class GatewayApplication {

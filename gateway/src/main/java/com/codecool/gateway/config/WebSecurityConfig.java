@@ -1,9 +1,10 @@
 package com.codecool.gateway.config;
 
-import com.codecool.gateway.service.LoginSuccessHandler;
-import com.codecool.gateway.service.LogoutSuccessHandler;
+import com.codecool.gateway.service.CustomLoginSuccessHandler;
+import com.codecool.gateway.service.CustomLogoutSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -13,21 +14,22 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.web.client.RestTemplate;
 
-@Configuration
-@EnableWebSecurity
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private final PasswordEncoder passwordEncoder;
     private final CustomUserDetailsService customUserDetailsService;
-    private final LoginSuccessHandler loginSuccessHandler;
-    private final LogoutSuccessHandler logoutSuccessHandler;
+    private final CustomLoginSuccessHandler customLoginSuccessHandler;
+    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
+
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
                 .userDetailsService(customUserDetailsService)
-                .passwordEncoder(passwordEncoder());
+                .passwordEncoder(passwordEncoder);
     }
 
     @Override
@@ -39,20 +41,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
                 .formLogin()
                     .loginProcessingUrl("/login")
-                    .successHandler(loginSuccessHandler)
+                    .successHandler(customLoginSuccessHandler)
                     .failureHandler(new SimpleUrlAuthenticationFailureHandler())
                     .permitAll()
             .and()
                 .logout()
                     .logoutUrl("/logout")
-                    .logoutSuccessHandler(logoutSuccessHandler)
+                    .logoutSuccessHandler(customLogoutSuccessHandler)
                     .permitAll()
             .and()
                 .csrf().disable();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }
